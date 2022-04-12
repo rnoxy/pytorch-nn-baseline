@@ -1,8 +1,8 @@
 # NN-baseline
 Simple baseline project for training _neural network_ 
-with clean pytorch code.
+with quite clean **PyTorch** framework.
 
-In this project we experiment with train the model on _CIFAR10_.
+In this project we experiment with train the model on _CIFAR10_ [1].
 The code structure is as follows:
 1. Create datasets.
 2. Create dataloaders.
@@ -49,3 +49,7 @@ Please do not use this code directly to your custom datasets.
 You should first do the proper data processing and model weights initialization,
 as well as fit the model input shape to your custom dataset images.
 
+
+**References**
+
+[1] Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009.
