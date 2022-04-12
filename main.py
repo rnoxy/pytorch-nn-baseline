@@ -125,7 +125,7 @@ def main():
     loss_fn = CrossEntropyLoss()
 
     for epoch in range(max_epochs):
-        print(f"Training epoch {epoch} ...")
+        print(f"Training epoch {epoch+1} ...")
         running_loss = 0.0
         # for i, batch in tqdm(
         #     enumerate(dataloaders["train"]), total=len(datasets["train"]) // batch_size
@@ -159,11 +159,12 @@ def main():
 
             if i % 1000 == 999:
                 last_loss = running_loss / 1000  # loss per batch
-                print("  batch {} loss: {}".format(i + 1, last_loss))
+                print("  batch {} train_loss: {:.5f}".format(i + 1, last_loss))
                 running_loss = 0.0
 
         # Validate the model
-        validate_model(model, loss_fn, dataloaders["valid"])
+        valid_loss = validate_model(model, loss_fn, dataloaders["valid"])
+        print(f"Epoch {epoch+1}: valid_loss: {valid_loss:.4f}")
 
     # torch.save(model.state_dict(), "model-epoch20.ckpt")
     print("All done")
