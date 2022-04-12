@@ -2,6 +2,8 @@ import torch
 import torchvision.datasets
 from torch.utils.data import DataLoader
 
+from models import MLPNet, ConvNet
+
 
 def set_seed(seed):
     import random
@@ -54,3 +56,30 @@ def validate_model(model, loss_fn, dataloader: DataLoader):
     running_loss /= batch_idx + 1
 
     return running_loss, running_accuracy / len(dataloader.dataset)
+
+
+def create_datasets(dataset_name: str):
+    if dataset_name == "CIFAR10":
+        return get_CIFAR10_datasets()
+    raise ValueError(f"Unknown dataset name {dataset_name}")
+
+
+def create_dataloaders(datasets, batch_size=32):
+    shuffle = {"train": True, "valid": False}
+
+    return {
+        split: DataLoader(
+            dataset=dataset, batch_size=batch_size, shuffle=shuffle[split]
+        )
+        for split, dataset in datasets.items()
+    }
+
+
+def create_model(model_name: str):
+    model_name = model_name.lower()
+    if model_name == "mlp":
+        return MLPNet()
+    elif model_name == "conv":
+        return ConvNet()
+    else:
+        raise ValueError(f"Unknown model name {model_name}.")

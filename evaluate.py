@@ -15,8 +15,7 @@
 import torch
 from torch.nn import CrossEntropyLoss
 
-from main import create_datasets, create_dataloaders, create_model
-from utils import validate_model
+from utils import validate_model, create_datasets, create_dataloaders, create_model
 
 
 def main(model_path):

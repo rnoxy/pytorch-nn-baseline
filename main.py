@@ -1,35 +1,6 @@
 import torch
-from torch.utils.data import DataLoader
 
-from models import MLPNet, ConvNet
-from utils import set_seed, get_CIFAR10_datasets, validate_model
-
-
-def create_datasets(dataset_name: str):
-    if dataset_name == "CIFAR10":
-        return get_CIFAR10_datasets()
-    raise ValueError(f"Unknown dataset name {dataset_name}")
-
-
-def create_dataloaders(datasets, batch_size=32):
-    shuffle = {"train": True, "valid": False}
-
-    return {
-        split: DataLoader(
-            dataset=dataset, batch_size=batch_size, shuffle=shuffle[split]
-        )
-        for split, dataset in datasets.items()
-    }
-
-
-def create_model(model_name: str):
-    model_name = model_name.lower()
-    if model_name == "mlp":
-        return MLPNet()
-    elif model_name == "conv":
-        return ConvNet()
-    else:
-        raise ValueError(f"Unknown model name {model_name}.")
+from utils import set_seed, validate_model, create_datasets, create_dataloaders, create_model
 
 
 def main():
