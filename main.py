@@ -1,28 +1,8 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
 import torch
-import torchvision.datasets
-from icecream import ic
 from torch.utils.data import DataLoader
 
 from models import MLPNet, ConvNet
-
-
-# Press the green button in the gutter to run the script.
-def get_CIFAR10_datasets():
-    from torchvision.transforms import Compose, ToTensor
-
-    transform = Compose([ToTensor()])
-    train = torchvision.datasets.CIFAR10(
-        root="~/datasets", train=True, transform=transform, download=False
-    )
-    valid = torchvision.datasets.CIFAR10(
-        root="~/datasets", train=False, transform=transform, download=False
-    )
-    return {"train": train, "valid": valid}
+from utils import set_seed, get_CIFAR10_datasets, validate_model
 
 
 def create_datasets(dataset_name: str):
@@ -32,7 +12,6 @@ def create_datasets(dataset_name: str):
 
 
 def create_dataloaders(datasets, batch_size=32):
-
     shuffle = {"train": True, "valid": False}
 
     return {
@@ -53,43 +32,6 @@ def create_model(model_name: str):
         raise ValueError(f"Unknown model name {model_name}.")
 
 
-def validate_model(model, loss_fn, dataloader: DataLoader):
-    # Switch model to eval mode
-    model_training = model.training
-    model.eval()
-
-    # Do all calculations without accumulating gradients
-    running_loss = 0.0
-    with torch.no_grad():
-        for batch_idx, batch in enumerate(dataloader):
-            images, labels = batch
-            images = images.to(model.device)
-            labels = labels.to(model.device)
-
-            ypred = model(images)
-            loss = loss_fn(ypred, labels)
-            # ic(loss.item())
-            running_loss += loss.item()
-
-    # Switch model to training mode
-    if model_training:
-        model.train()
-
-    running_loss /= batch_idx + 1
-    return running_loss
-
-
-def set_seed(seed):
-    import random
-    import numpy as np
-
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    # torch.use_deterministic_algorithms(True)
-    # see https://docs.nvidia.com/cuda/cublas/index.html#cublasApi_reproducibility
-
-
 def main():
     set_seed(seed=42)
 
@@ -101,7 +43,8 @@ def main():
     dataloaders = create_dataloaders(datasets, batch_size=batch_size)
 
     # 3. Create model
-    model = create_model(model_name="conv")  # mlp or conv
+    model_name = "conv"  # mlp or conv
+    model = create_model(model_name)
 
     # 3.1. Move all the model weights to the proper device
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -125,7 +68,7 @@ def main():
     loss_fn = CrossEntropyLoss()
 
     for epoch in range(max_epochs):
-        print(f"Training epoch {epoch+1} ...")
+        print(f"Training epoch {epoch + 1} ...")
         running_loss = 0.0
         # for i, batch in tqdm(
         #     enumerate(dataloaders["train"]), total=len(datasets["train"]) // batch_size
@@ -163,10 +106,14 @@ def main():
                 running_loss = 0.0
 
         # Validate the model
-        valid_loss = validate_model(model, loss_fn, dataloaders["valid"])
-        print(f"Epoch {epoch+1}: valid_loss: {valid_loss:.4f}")
+        valid_loss, valid_accuracy = validate_model(
+            model, loss_fn, dataloaders["valid"]
+        )
+        print(
+            f"Epoch {epoch + 1}: valid_loss: {valid_loss:.4f}, valid_acc: {valid_accuracy * 100.0: .2f}%"
+        )
 
-    # torch.save(model.state_dict(), "model-epoch20.ckpt")
+    torch.save(model.state_dict(), f"{model_name}-epoch{max_epochs}.ckpt")
     print("All done")
 
 
