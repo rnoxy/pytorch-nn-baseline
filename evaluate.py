@@ -40,4 +40,4 @@ def main(model_path):
 
 
 if __name__ == "__main__":
-    main("model-epoch20.ckpt")
+    main("conv-epoch20.ckpt")
